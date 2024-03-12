@@ -1,11 +1,11 @@
 # MQTT-Proyecto1
 
 
-o **Introducción.**<br>
-o **Desarrollo.**<br>
-o **Aspectos Logrados y No logrados.**<br>
-o **Conclusiones.**<br>
-o **Referencias**<br>
+&centerdot;**Introducción.**<br>
+&centerdot; **Desarrollo.**<br>
+&centerdot;**Aspectos Logrados y No logrados.**<br>
+&centerdot;**Conclusiones.**<br>
+&centerdot;**Referencias**<br>
 
 
 Juan Pablo duque Palencia y Nicolas Betancur  
