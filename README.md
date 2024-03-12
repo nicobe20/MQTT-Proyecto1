@@ -2,7 +2,7 @@
 
 
 &centerdot;**Introducción.**<br>
-&centerdot; **Desarrollo.**<br>
+&centerdot;**Desarrollo.**<br>
 &centerdot;**Aspectos Logrados y No logrados.**<br>
 &centerdot;**Conclusiones.**<br>
 &centerdot;**Referencias**<br>
