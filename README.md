@@ -8,4 +8,4 @@
 &centerdot;**Referencias**<br>
 
 
-Juan Pablo duque Palencia y Nicolas Betancur  
+Juan Pablo duque Palencia y Nicolas Betancur Ochoa  
