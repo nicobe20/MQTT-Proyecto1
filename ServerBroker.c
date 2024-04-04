@@ -8,92 +8,135 @@
 //standard libraries used for programming with threads
 
 #define MAX_CLIENTES 10
-#define TAMAÑO_BUFFER 1024  
-
+#define BUFFER_SIZE 2048  // Tamaño suficiente para la mayoría de los paquetes MQTT
+//#define PUERTO_MQTT 1883
+#define DEFAULT_PORT 1883
 // Structure to hold client information
 typedef struct {
     int sockfd;
-    struct sockaddr_in addr;  //address info of the client connecting to the server
-    pthread_t thread;
-} Client;
+    struct sockaddr_in addr; //address info of the client connecting to the server
+} Cliente;
 
-//void *manejoDeClientes(void *arg);
-//void addCliente(int sockfd, struct sockaddr_in addr, pthread_t thread) //address info, socketfd is socket file description 
-//void removerCliente(int index) //remover de la lista de clientes
-//void clean();
+Cliente clientes[MAX_CLIENTES];
+pthread_mutex_t mutexClientes = PTHREAD_MUTEX_INITIALIZER;
 
-Client cliente[MAX_CLIENTS];
-pthread_mutex_t mutex;
 
-//Aqui vamos a crear el manejo de los clientes, como aceptamos a los clientes que se quieren conectar y los que se van a desconectar.
+void *manejarConexionCliente(void *data) {
+    int sockfd = *((int*)data);
+    free(data);  // Liberar memoria asignada para el descriptor del socket
 
-int main(int argc, char *argv[]){
-    pthread_mutex_init(&mutex, NULL);
-    if(argc != 4 ){
-        printf("Input incorrecto -> ./ %s <ip> <port> </path/log.log ", argv[0]);
-        return 1;
+    char buffer[BUFFER_SIZE];
+    ssize_t mensajeLen;
+
+    // Bucle de lectura: leer los datos del cliente
+    while ((mensajeLen = recv(sockfd, buffer, BUFFER_SIZE, 0)) > 0) {
+        // Aquí se manejarían los mensajes MQTT recibidos
+        //POR IMPLEMENTAR Almacenamiento de mensajes
+
+
+        printf("Mensaje recibido (bytes): %zd\n", mensajeLen);
+        // Por simplicidad, solo imprimimos la longitud del mensaje
+    }
+    if (mensajeLen == 0) {
+        // Cliente desconectado
+        printf("Cliente desconectado\n");
+    } else if (mensajeLen < 0) {
+        perror("Error en recv");
+    }
+
+    close(sockfd);  // Cerrar la conexión
+    return NULL;
+}
+
+int main(int argc, char argv[]) {
+// manejo de argumentos por consola
+
+    if(argc != 4){
+        fprintf(stderr, "Uso: %s <ip> <port> <path/log.log>\n", argv[0]);
+        exit(EXIT_FAILURE);
     }
 
     char *ip = argv[1];
     char *port = argv[2];
     char *logPath = argv[3];
 
-    /*
-    printf("ip = %s",ip);
-    printf("port = %s",port);
-    printf("logPath = %s",logPath)
-    */
-    
+    // Asegurándose de que el puerto no esté vacío, si lo está, usa el puerto por defecto
+    if (strlen(port) == 0) {
+        port = DEFAULT_PORT;
+    }
 
-//socket
-int server_sockfd = socket(AF_INET, SOCK_STREAM, 0); // <- wtf?? explicar esto bien y entenderlo bien
-if (server_sockfd == -1){
-    perror("Error al crear sockets");
-    return 1;
+    // Por ahora, solo imprimimos los valores para verificar
 
-}
-}
+    //Server Sturcture
+    struct sockaddr_in servidorAddr = {
+        .sin_family = AF_INET,
+        .sin_addr.s_addr = inet_addr(ip),
+        .sin_port = htons(atoi(port)),
+    };
+    printf("Iniciando el servidor en IP: %s, Puerto: %s\n", ip, port);
 
-//Aqui inicializar mutex threads
+    //Creacion del socket
+    int servidorSockfd = socket(AF_INET, SOCK_STREAM, 0);  //AF_INET VERIFICAR !!!! "SOCK_STREAM IS STANDAR TCP. CONNECTION BASED PROTOCOL, SENDS VARIOUS PACKETS"
+    if (servidorSockfd < 0) {
+        perror("Error al crear el socket del servidor");
+        exit(EXIT_FAILURE);
+    }
 
-//Servidor 
-//REVISAR ESTO MUY BIEN PORFAVOR.
+      //bind server to socket
+    if (bind(servidorSockfd, (struct sockaddr *)&servidorAddr, sizeof(servidorAddr)) < 0) {
+        perror("Error al vincular el socket del servidor");
+        close(servidorSockfd);
+        exit(EXIT_FAILURE);
+    }
+    //listen for incoming connections
+    if (listen(servidorSockfd, MAX_CLIENTES) < 0) {
+        perror("Error al escuchar en el socket del servidor");
+        close(servidorSockfd);
+        exit(EXIT_FAILURE);
+    }
+
+    printf("Servidor MQTT ejecutándose en el puerto %s...\n", port);
+
+    // Manejo del archivo de log
+    FILE *logFile = fopen(logPath, "a"); // Abre el archivo en modo append
+    if (logFile == NULL) {
+        perror("Error al abrir el archivo de log");
+        exit(EXIT_FAILURE);
+    }
+     // Registrando el inicio del servidor en el archivo de log
+    fprintf(logFile, "Servidor iniciado en IP: %s, Puerto: %s\n", ip, port);
+    fclose(logFile); 
+
+/*
+old
 struct sockaddr_in server_addr;
 server_addr.sin_family = AF_INET;
 server_addr.sin_addr.s_addr = inet_addr(ip);
 server_addr.sin_port = htons(atoi(port));
+*/
 
-//Vincular el socket del server con el address y el port (port para usar 1883)
-if(bind(server_sockfd,(struct sockaddr_in* )&server_addr, sizeof(server_addr)) == -1){ //manejo del error en la vinculacion del servidor y vinculacion, REVISAR BIEN ESTO!!!!
-    perror("Error de vinculo");
-    close(server_sockfd);
-    return 1; 
+
+//manejo de clientes continuos, alocar espacio de memoria para los clientes entrantes, desalocar las threads para darselas a los nuevos clientes.
+    while (1) {
+
+        struct sockaddr_in clienteAddr;
+        socklen_t clienteAddrLen = sizeof(clienteAddr);
+        int* nuevoSockfd = malloc(sizeof(int));
+        *nuevoSockfd = accept(servidorSockfd, (struct sockaddr *)&clienteAddr, &clienteAddrLen);
+
+        if (*nuevoSockfd < 0) {
+            perror("Error al aceptar conexión del cliente");
+            free(nuevoSockfd);
+            continue;
+        }
+
+        pthread_t threadId;
+        if (pthread_create(&threadId, NULL, manejarConexionCliente, nuevoSockfd) != 0) {
+            perror("Error al crear el hilo del cliente");
+            close(*nuevoSockfd);
+            free(nuevoSockfd);
+        }
+    }
+
+    return 0;
 }
-
-//Revisar conexiones entrantes
-//#include <sys/socket.h>
-//int listen(int socket, int backlog);
-if(listen(server_sockfd, MAX_CLIENTES == -1) == -1){
-    perror("Error aqui :/");
-    close(server_sockfd);
-    return 1;
-}
-
-//Funciones de clientes!
-void añadirCliente(){
-
-
-}
-
-void eliminarCliente(){
-
-
-}
-
-
-
-//el return 1, simplemente es un indicador que muestra que la aplicacion no se termino de ejecutar bien.
-//https://pubs.opengroup.org/onlinepubs/9699919799/functions/listen.html
-//https://pubs.opengroup.org/onlinepubs/9699919799/functions/contents.html
-//esas paginas esta buenas 
-
