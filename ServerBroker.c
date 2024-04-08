@@ -8,7 +8,7 @@
 
 #define MAX_CLIENTES 10
 #define BUFFER_SIZE 2048  // Tamaño suficiente para la mayoría de los paquetes MQTT
-#define DEFAULT_PORT 1883
+//#define DEFAULT_PORT 1883
 
 // Estructura para almacenar la información del cliente
 typedef struct {
@@ -99,7 +99,7 @@ int main(int argc, char *argv[]) {
     // Configuración inicial del servidor, incluyendo la creación del socket y la vinculación a la dirección IP y puerto especificados
     struct sockaddr_in servidorAddr = {
         .sin_family = AF_INET,
-        .sin_addr.s_addr = atoi(inet_addr), // Escuchar en todas las interfaces, esto hay que revisarlo mejor!
+        .sin_addr.s_addr = atoi(inet_addr), 
         .sin_port = htons(atoi(port)),
     };
     
@@ -161,3 +161,15 @@ int main(int argc, char *argv[]) {
 
     return 0;
 }
+
+
+//NOTES:
+/*
+    -Que pasa si al iniciar el servidor no se asigna un archivo log?
+    o se da el nombre de un archivo que no existe?... dar respuestas apropiadas...
+    simplicidad al correr...
+    mejorar el codigo(ponerlo mas bonito)
+    buenos comentarios.
+
+
+*/
