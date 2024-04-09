@@ -98,7 +98,7 @@ int main(int argc, char *argv[]) {
     // Configuración inicial del servidor, incluyendo la creación del socket y la vinculación a la dirección IP y puerto especificados
     struct sockaddr_in servidorAddr = {
         .sin_family = AF_INET,
-        .sin_addr.s_addr = inet_addr(inet_addr), 
+        .sin_addr.s_addr = inet_addr(ip), 
         .sin_port = htons(atoi(port)),
     };
     
