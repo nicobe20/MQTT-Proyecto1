@@ -6,9 +6,9 @@
 #include <sys/socket.h>
 #include <pthread.h>
 
-#define MAX_CLIENTES 10
-#define BUFFER_SIZE 2048  // Tamaño suficiente para la mayoría de los paquetes MQTT
-//#define DEFAULT_PORT 1883
+#define MAX_CLIENTES 10 //Cambiar esto.
+#define BUFFER_SIZE 2048  // Tamaño suficiente para la mayoría de los paquetes MQTT.
+#define DEFAULT_PORT 1883 //Cambiar esto tambien.
 
 // Estructura para almacenar la información del cliente
 typedef struct {
@@ -86,7 +86,6 @@ void *manejarConexionCliente(void *data) {
 int main(int argc, char *argv[]) {
 
     // Manejo de argumentos por consola
-    
     if(argc != 4){
         fprintf(stderr, "Uso: %s <ip> <port> <path/log.log>\n", argv[0]);
         exit(EXIT_FAILURE);
@@ -99,7 +98,7 @@ int main(int argc, char *argv[]) {
     // Configuración inicial del servidor, incluyendo la creación del socket y la vinculación a la dirección IP y puerto especificados
     struct sockaddr_in servidorAddr = {
         .sin_family = AF_INET,
-        .sin_addr.s_addr = atoi(inet_addr), 
+        .sin_addr.s_addr = inet_addr(inet_addr), 
         .sin_port = htons(atoi(port)),
     };
     
@@ -168,8 +167,11 @@ int main(int argc, char *argv[]) {
     -Que pasa si al iniciar el servidor no se asigna un archivo log?
     o se da el nombre de un archivo que no existe?... dar respuestas apropiadas...
     simplicidad al correr...
-    mejorar el codigo(ponerlo mas bonito)
-    buenos comentarios.
+    mejorar el codigo(ponerlo mas b)
+
+
+
+
 
 
 */

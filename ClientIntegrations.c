@@ -5,34 +5,40 @@
 #include <arpa/inet.h>
 #include <sys/socket.h>
 
-#define PUERTO_MQTT 1883
 #define TAMANO_BUFFER 2048
 
-char ipClient; //client ip, look for a way to get it from wherever the client is running
-char ipBroker; //ip to connect to the broker 
-char query; // tipo de mensaje
-
-
-int main() {
-
-    if(argc != 1){
-        printf("Usage: %s <Location/log.txt> \n",argv[0])
+int main(int argc, char *argv[]) {
+    // Ensure correct usage
+    if (argc != 2) {
+        printf("Usage: %s <Location/log.txt>\n", argv[0]);
+        exit(EXIT_FAILURE);
     }
-      char *logPath = argv[1]; //same implementation from server...
-    
+    char *logPath = argv[1]; // Log file path from the command line argument
 
-    printf("Aplicacion Cliente");
-    scanf("Broker Ip: ", ipClient);
-    
-    //log file modifications:
+    char ip[INET_ADDRSTRLEN]; // Buffer for IP address input by the user
+    int port; // Variable to store the user-input port number
 
+    // Prompt the user for the IP address of the MQTT broker
+    printf("Aplicacion Cliente\n");
+    printf("Ingrese la IP del broker: ");
+    scanf("%15s", ip); // Capture IP address from the user
 
-    //sockets
+    // Prompt the user for the port number
+    printf("Ingrese el puerto: ");
+    scanf("%d", &port); // Capture port number from the user
+
+    // Logging connection attempt
+    FILE *logFile = fopen(logPath, "a");
+    if (logFile == NULL) {
+        perror("Error al abrir el archivo de log");
+        exit(EXIT_FAILURE);
+    }
+    fprintf(logFile, "Intentando conectar al servidor MQTT en %s:%d\n", ip, port);
+    fclose(logFile);
+
+    // Creating the socket
     int sockfd;
     struct sockaddr_in direccionServidor;
-    char bufferRespuesta[TAMANO_BUFFER];
-    ssize_t lenRespuesta;
-
 
     sockfd = socket(AF_INET, SOCK_STREAM, 0);
     if (sockfd < 0) {
@@ -41,89 +47,57 @@ int main() {
     }
 
     direccionServidor.sin_family = AF_INET;
-    direccionServidor.sin_port = htons(PUERTO_MQTT);
-    direccionServidor.sin_addr.s_addr = inet_addr("127.0.0.1");  // Asumimos servidor en localhost
+    direccionServidor.sin_port = htons(port); // Use user-specified port
+    direccionServidor.sin_addr.s_addr = inet_addr(ip); // Use user-specified IP
 
-    // Conectar al servidor MQTT
+    // Attempt to connect to the MQTT broker
+
     if (connect(sockfd, (struct sockaddr *)&direccionServidor, sizeof(direccionServidor)) < 0) {
         perror("Conexión fallida");
         close(sockfd);
         exit(EXIT_FAILURE);
-    }
-    else{
+        
+    } else {
         printf("Conectado al servidor MQTT.\n");
+        fflush(stdout);
     }
-    
 
-    // Enviar mensaje CONNECT (representación simple)
-    
+    // Placeholder for MQTT CONNECT message. Should be replaced with actual implementation.
     char mensajeConnect[] = "0001xxxx";
     if (send(sockfd, mensajeConnect, strlen(mensajeConnect), 0) < 0) {
         perror("Fallo al enviar mensaje CONNECT");
         close(sockfd);
         exit(EXIT_FAILURE);
-    }
-    else{
-        
+    } else {
         printf("Mensaje CONNECT enviado, esperando CONNACK...\n");
     }
 
-    
+    // Receive response from the server
+    char bufferRespuesta[TAMANO_BUFFER];
+    ssize_t lenRespuesta = recv(sockfd, bufferRespuesta, TAMANO_BUFFER - 1, 0);
 
-    // Asegurarse de que la respuesta es una cadena de caracteres válida
-    lenRespuesta = recv(sockfd, bufferRespuesta, TAMANO_BUFFER - 1, 0);
+    if (lenRespuesta > 0) {
+        bufferRespuesta[lenRespuesta] = '\0'; // Ensure null-terminated string for printing
 
-    if(lenRespuesta>0){
-    bufferRespuesta[lenRespuesta] = '\0';
-
-    // Deserializar el mensaje MQTT
-        char MessageType[5]; // Primeros 4 caracteres + '\0'
-        char DUPFlag[2];     // Quinto carácter + '\0'
-        char QoSFlag[3];     // Sexto y séptimo caracteres + '\0'
-        char RETAIN[2];      // Octavo carácter + '\0'
-
-        strncpy(MessageType, bufferRespuesta, 4);
-        MessageType[4] = '\0';
-
-        DUPFlag[0] = bufferRespuesta[4];
-        DUPFlag[1] = '\0';
-
-        strncpy(QoSFlag, bufferRespuesta + 5, 2);
-        QoSFlag[2] = '\0';
-
-        RETAIN[0] = bufferRespuesta[7];
-        RETAIN[1] = '\0';
-
-        // Convertir MessageType de binario a decimal
-        int messageTypeInt = strtol(MessageType, NULL, 2);
-        printf("Entero MessageType %d",messageTypeInt);
-         switch (messageTypeInt) {
-            
-            case 2: // CONNACK
-                printf("CONNACK recibido, puede comenzar a enviar mensajes.\n");
-                
-                break;
-            default:
-                printf("\n");
-                printf("Longitud de la respuesta: %zd\n", lenRespuesta);
-                printf("Respuesta no reconocida: %s\n", bufferRespuesta);
-                close(sockfd);
-                exit(EXIT_FAILURE);
-        
-    }
+        // Placeholder for parsing server response. Implementation depends on protocol details.
+        printf("Respuesta recibida del servidor: %s\n", bufferRespuesta);
+    } else if (lenRespuesta == 0) {
+        printf("El servidor cerró la conexión\n");
+    } else {
+        perror("Error al recibir respuesta");
     }
 
-    // Bucle para enviar mensajes ingresados por el usuario
+    // Interactive loop for sending messages to the server
     while (1) {
         printf("Ingrese su mensaje (escriba 'salir' para terminar): ");
         char mensajeUsuario[TAMANO_BUFFER];
         if (fgets(mensajeUsuario, TAMANO_BUFFER, stdin) != NULL) {
-            // Verificar si el usuario quiere terminar
+            // Check if the user wants to exit
             if (strcmp(mensajeUsuario, "salir\n") == 0) {
                 break;
             }
 
-            // Enviar el mensaje ingresado al servidor
+            // Send the user's message to the server
             if (send(sockfd, mensajeUsuario, strlen(mensajeUsuario), 0) < 0) {
                 perror("Fallo al enviar el mensaje");
                 break;
@@ -131,10 +105,10 @@ int main() {
         }
     }
 
+    // Close the socket and end the program
     close(sockfd);
     return 0;
 }
-
 
 //Notes 
 /*
