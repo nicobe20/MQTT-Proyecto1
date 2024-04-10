@@ -4,6 +4,7 @@
 #include <unistd.h>
 #include <arpa/inet.h>
 #include <sys/socket.h>
+#include <time.h>
 
 #define TAMANO_BUFFER 2048
 
@@ -26,6 +27,16 @@ int main(int argc, char *argv[]) {
     // Prompt the user for the port number
     printf("Ingrese el puerto: ");
     scanf("%d", &port); // Capture port number from the user
+    
+    //get time in c for current client...
+    //Hay muchas formas de sacar el tiempo actual en c mexi no se si esta sea la mas adecuada
+
+    time_t seconds;   //very weird.. time in seconds since 1970
+    struct tm * timeinfo; //timeinfo pointer to a tm structure explained in notes*
+    time ( &seconds );  //seconds is passed here directly so that time retrieves the current calendar time that coresponds to that ammount in seconds
+    timeinfo = localtime ( &seconds ); //another pointer ._. this time the pointer timeinfo, previously declared stores the value of time but taking into account local time...
+    //printf ( "Current local time and date: %s", asctime (timeinfo) ); //asctime just converts to readable string.
+    //this is an easy way to do this maybe theres more but idk.
 
     // Logging connection attempt
     FILE *logFile = fopen(logPath, "a");
@@ -33,11 +44,16 @@ int main(int argc, char *argv[]) {
         perror("Error al abrir el archivo de log");
         exit(EXIT_FAILURE);
     }
-    fprintf(logFile, "Intentando conectar al servidor MQTT en %s:%d\n", ip, port);
+    //hay que formatear el tiempo
+    char str[80];
+    //strftime(str, 80, "%d - %m - %Y, %H:%M:%S",timeinfo);
+    strftime(str, 80, "%c",timeinfo);  //wow :)
+
+    fprintf(logFile, "[%s], Intentando conectar al servidor MQTT en %s:%d\n",str, ip, port); //log file done...
     fclose(logFile);
 
     // Creating the socket
-    int sockfd;
+    int sockfd;   //https://www.gta.ufrj.br/ensino/eel878/sockets/sockaddr_inman.html
     struct sockaddr_in direccionServidor;
 
     sockfd = socket(AF_INET, SOCK_STREAM, 0);
@@ -45,7 +61,7 @@ int main(int argc, char *argv[]) {
         perror("Error al crear el socket");
         exit(EXIT_FAILURE);
     }
-
+    //por fin funciona jajajaj, no se como solucione el error creo que era un stdout.
     direccionServidor.sin_family = AF_INET;
     direccionServidor.sin_port = htons(port); // Use user-specified port
     direccionServidor.sin_addr.s_addr = inet_addr(ip); // Use user-specified IP
@@ -61,6 +77,8 @@ int main(int argc, char *argv[]) {
         printf("Conectado al servidor MQTT.\n");
         fflush(stdout);
     }
+
+    //working...
 
     // Placeholder for MQTT CONNECT message. Should be replaced with actual implementation.
     char mensajeConnect[] = "0001xxxx";
@@ -116,5 +134,12 @@ int main(int argc, char *argv[]) {
     -Complete protocol -> Doing.
     -Integrate -> Working.
     -Comments -> Doing.
+
+
+
+    some important explanations 
+    when seeing something like:
+    struct tm *info;
+    this is very simple, and it only means that info is saving a pointer to a tm structure, tm in this case being a time structure...
     
 */
