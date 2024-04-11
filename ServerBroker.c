@@ -8,7 +8,7 @@
 
 #define MAX_CLIENTES 10 //Cambiar esto.
 #define BUFFER_SIZE 2048  // Tamaño suficiente para la mayoría de los paquetes MQTT.
-#define DEFAULT_PORT 1883 //Cambiar esto tambien.
+//#define DEFAULT_PORT 1883 //Cambiar esto tambien.
 
 // Estructura para almacenar la información del cliente
 typedef struct {
@@ -17,13 +17,13 @@ typedef struct {
 } Cliente;
 
 void *manejarConexionCliente(void *data) {
-    int sockfd = *((int*)data);
+    int sockfd = *((int*)data); //pointer points to pointer
     free(data);  // Liberar memoria asignada para el descriptor del socket
 
     char buffer[BUFFER_SIZE];
     ssize_t mensajeLen;
 
-    // Esperar por un mensaje
+    // Esperar por un mensaje utf 8 ...
     mensajeLen = recv(sockfd, buffer, BUFFER_SIZE - 1, 0);
     if (mensajeLen > 0) {
         buffer[mensajeLen] = '\0';  // Asegurar que el buffer es una cadena de caracteres válida
@@ -140,7 +140,7 @@ int main(int argc, char *argv[]) {
     while (1) {
         struct sockaddr_in clienteAddr;
         socklen_t clienteAddrLen = sizeof(clienteAddr);
-        int* nuevoSockfd = malloc(sizeof(int));
+        int *nuevoSockfd = malloc(sizeof(int)); 
         *nuevoSockfd = accept(servidorSockfd, (struct sockaddr *)&clienteAddr, &clienteAddrLen);
 
         if (*nuevoSockfd < 0) {
@@ -149,7 +149,6 @@ int main(int argc, char *argv[]) {
             continue;
         }
 
-        // Crear un hilo para manejar la conexión con el cliente
         pthread_t threadId;
         if (pthread_create(&threadId, NULL, manejarConexionCliente, nuevoSockfd) != 0) {
             perror("Error al crear el hilo del cliente");

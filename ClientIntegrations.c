@@ -9,6 +9,9 @@
 #define TAMANO_BUFFER 2048
 
 int main(int argc, char *argv[]) {
+
+    char bufferRespuesta[TAMANO_BUFFER];
+    ssize_t lenRespuesta;
     // Ensure correct usage
     if (argc != 2) {
         printf("Usage: %s <Location/log.txt>\n", argv[0]);
@@ -22,7 +25,7 @@ int main(int argc, char *argv[]) {
     // Prompt the user for the IP address of the MQTT broker
     printf("Aplicacion Cliente\n");
     printf("Ingrese la IP del broker: ");
-    scanf("%15s", ip); // Capture IP address from the user
+    scanf("%15s", ip); // Capture IP address from the user 
 
     // Prompt the user for the port number
     printf("Ingrese el puerto: ");
@@ -46,9 +49,7 @@ int main(int argc, char *argv[]) {
     }
     //hay que formatear el tiempo
     char str[80];
-    //strftime(str, 80, "%d - %m - %Y, %H:%M:%S",timeinfo);
     strftime(str, 80, "%c",timeinfo);  //wow :)
-
     fprintf(logFile, "[%s], Intentando conectar al servidor MQTT en %s:%d\n",str, ip, port); //log file done...
     fclose(logFile);
 
@@ -81,41 +82,76 @@ int main(int argc, char *argv[]) {
     //working...
 
     // Placeholder for MQTT CONNECT message. Should be replaced with actual implementation.
-    char mensajeConnect[] = "0001xxxx";
+  char mensajeConnect[] = "0001xxxx";
     if (send(sockfd, mensajeConnect, strlen(mensajeConnect), 0) < 0) {
         perror("Fallo al enviar mensaje CONNECT");
         close(sockfd);
         exit(EXIT_FAILURE);
-    } else {
-        printf("Mensaje CONNECT enviado, esperando CONNACK...\n");
     }
+    else{
+        
+        printf("Mensaje CONNECT enviado, esperando CONNACK...\n");
+        // Esperar respuesta CONNACK del servidor
+        ssize_t lenRespuesta = recv(sockfd, bufferRespuesta, TAMANO_BUFFER - 1, 0);
+        if (lenRespuesta < 0) {
+            perror("Error al recibir respuesta");
+            close(sockfd);
+            exit(EXIT_FAILURE);
+        }
+    }
+
 
     // Receive response from the server
-    char bufferRespuesta[TAMANO_BUFFER];
-    ssize_t lenRespuesta = recv(sockfd, bufferRespuesta, TAMANO_BUFFER - 1, 0);
+    lenRespuesta = recv(sockfd, bufferRespuesta, TAMANO_BUFFER - 1, 0);
+    if(lenRespuesta>0){
+    bufferRespuesta[lenRespuesta] = '\0'; //revisar
 
-    if (lenRespuesta > 0) {
-        bufferRespuesta[lenRespuesta] = '\0'; // Ensure null-terminated string for printing
+    // Deserializar el mensaje MQTT
+        char MessageType[5]; // Primeros 4 caracteres + '\0'
+        char DUPFlag[2];     // Quinto carácter + '\0'
+        char QoSFlag[3];     // Sexto y séptimo caracteres + '\0'
+        char RETAIN[2];      // Octavo carácter + '\0'
 
-        // Placeholder for parsing server response. Implementation depends on protocol details.
-        printf("Respuesta recibida del servidor: %s\n", bufferRespuesta);
-    } else if (lenRespuesta == 0) {
-        printf("El servidor cerró la conexión\n");
-    } else {
-        perror("Error al recibir respuesta");
+        strncpy(MessageType, bufferRespuesta, 4);
+        MessageType[4] = '\0';
+
+        DUPFlag[0] = bufferRespuesta[4];
+        DUPFlag[1] = '\0';
+
+        strncpy(QoSFlag, bufferRespuesta + 5, 2);
+        QoSFlag[2] = '\0';
+
+        RETAIN[0] = bufferRespuesta[7];
+        RETAIN[1] = '\0';
+
+        // Convertir MessageType de binario a decimal
+        int messageTypeInt = strtol(MessageType, NULL, 2);
+         switch (messageTypeInt) {
+            
+            case 2: // CONNACK
+                printf("CONNACK recibido, puede comenzar a enviar mensajes.\n");
+                
+                break;
+            default:
+                printf("\n");
+                printf("Longitud de la respuesta: %zd\n", lenRespuesta);
+                printf("Respuesta no reconocida: %s\n", bufferRespuesta);
+                close(sockfd);
+                exit(EXIT_FAILURE);
+        
     }
-
+    }
     // Interactive loop for sending messages to the server
-    while (1) {
+     while (1) {
         printf("Ingrese su mensaje (escriba 'salir' para terminar): ");
         char mensajeUsuario[TAMANO_BUFFER];
         if (fgets(mensajeUsuario, TAMANO_BUFFER, stdin) != NULL) {
-            // Check if the user wants to exit
+            // Verificar si el usuario quiere terminar
             if (strcmp(mensajeUsuario, "salir\n") == 0) {
                 break;
             }
 
-            // Send the user's message to the server
+            // Enviar el mensaje ingresado al servidor
             if (send(sockfd, mensajeUsuario, strlen(mensajeUsuario), 0) < 0) {
                 perror("Fallo al enviar el mensaje");
                 break;
@@ -135,11 +171,9 @@ int main(int argc, char *argv[]) {
     -Integrate -> Working.
     -Comments -> Doing.
 
-
-
     some important explanations 
     when seeing something like:
     struct tm *info;
-    this is very simple, and it only means that info is saving a pointer to a tm structure, tm in this case being a time structure...
+    ptr info is a ptr to a tm struct.
     
 */
