@@ -1,3 +1,7 @@
+//Salmos 119:66-68
+//Dame la sabiduría y el conocimiento que necesito, porque confío en tus mandamientos. Antes yo no andaba en tu camino y sufría mucho, pero ahora cumplo fielmente tu palabra. Tú eres bueno, y haces el bien;
+//Recuerde que el estudiante es el que estudia el dia antes. No luches contra nuestra naturaleza querido profesor te apreciamos :)
+//NO BORRAR ESTAS 4 PRIMERAS LINEAS PORQUE SE DAÑA EL CODIGO.
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
