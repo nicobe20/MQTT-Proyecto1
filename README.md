@@ -27,14 +27,14 @@ El desarrollo del cliente en C también fue complicado inicialmente debido a pro
 &centerdot;**Aspectos Logrados y No logrados.**<br>
 
 Aspectos Logrados 
--Logramos la implementacion y vinculacion de sockets.
--Logramos la implementacion de un log (log.txt) que regsitre las peticiones.
--Logramos que el programa Server Se ejecute con el IP privado de la instancia y corra por el puerto dado (usualmente el 1883 ), de la misma manera logramos que el programa client se ejecute Pidiendo la IP (publica) del broker y el puerto por el cual se iniciara la comunicación.
--Logramos la conexion del programa mediante un CONNECT y esperando verificacion CONNACK.
--Logramos mandar un mensaje de tipo PUBLISH con el fixed header, variable header, Packet Identifier y con el topico y el mensaje y este logramos enviarlo a todos los clientes conectados a traves de los sockets.
--Logramos configurar el socket a no bloqueante en el cliente.
--Logramos manejo de errores con sockets.
--Logramos manejar los pThreads para el manejo de mensajes y conexiones entrantes mientras se realizaban otras operaciones.
+&centerdot;Logramos la implementacion y vinculacion de sockets.<br>
+&centerdot;Logramos la implementacion de un log (log.txt) que regsitre las peticiones.<br>
+&centerdot;Logramos que el programa Server Se ejecute con el IP privado de la instancia y corra por el puerto dado (usualmente el 1883 ), de la misma manera logramos que el programa client se ejecute Pidiendo la IP (publica) del broker y el puerto por el cual se iniciara la comunicación.<br>
+&centerdot;Logramos la conexion del programa mediante un CONNECT y esperando verificacion CONNACK.<br>
+&centerdot;Logramos mandar un mensaje de tipo PUBLISH con el fixed header, variable header, Packet Identifier y con el topico y el mensaje y este logramos enviarlo a todos los clientes conectados a traves de los sockets.<br>
+&centerdot;Logramos configurar el socket a no bloqueante en el cliente.<br>
+&centerdot;Logramos manejo de errores con sockets.<br>
+&centerdot;Logramos manejar los pThreads para el manejo de mensajes y conexiones entrantes mientras se realizaban otras operaciones.<br>
 
 Aspectos no logrados
 -No implementamos logica para QoS, DUP yRetain  no se implemento Suscribir ni desuscribir asi mismo los acknowledges relacionados con estos. Tampoco el PUBACK. Con esto los mensajes que se publican no tienen como destino los suscritos a los topicos sino todos los usuarios conectados.
