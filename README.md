@@ -26,7 +26,7 @@ El desarrollo del cliente en C también fue complicado inicialmente debido a pro
 
 &centerdot;**Aspectos Logrados y No logrados.**<br>
 
-Aspectos Logrados 
+Aspectos Logrados <br>
 &centerdot;Logramos la implementacion y vinculacion de sockets.<br>
 &centerdot;Logramos la implementacion de un log (log.txt) que regsitre las peticiones.<br>
 &centerdot;Logramos que el programa Server Se ejecute con el IP privado de la instancia y corra por el puerto dado (usualmente el 1883 ), de la misma manera logramos que el programa client se ejecute Pidiendo la IP (publica) del broker y el puerto por el cual se iniciara la comunicación.<br>
@@ -36,8 +36,8 @@ Aspectos Logrados
 &centerdot;Logramos manejo de errores con sockets.<br>
 &centerdot;Logramos manejar los pThreads para el manejo de mensajes y conexiones entrantes mientras se realizaban otras operaciones.<br>
 
-Aspectos no logrados
--No implementamos logica para QoS, DUP yRetain  no se implemento Suscribir ni desuscribir asi mismo los acknowledges relacionados con estos. Tampoco el PUBACK. Con esto los mensajes que se publican no tienen como destino los suscritos a los topicos sino todos los usuarios conectados.
+Aspectos no logrados<br>
+&centerdot;No implementamos logica para QoS, DUP yRetain  no se implemento Suscribir ni desuscribir asi mismo los acknowledges relacionados con estos. Tampoco el PUBACK. Con esto los mensajes que se publican no tienen como destino los suscritos a los topicos sino todos los usuarios conectados.<br>
 
 &centerdot;**Conclusiones.**<br>
 En conclusion fue un proyecto muy desafiante que aunque no lo logramos terminar por completo pudimos aprender mucho sobre diferentes aspectos de la programacion en red, aprendimos sobre el protocolo MQTT y como implementarlo y como funciona, aprendimos nuevas cosas sobre C y diferentes forma de programar, aprendimos sobre concurrencia y como implementarla en C, aprendimos sobre sockets y conexiones me parece curioso el hecho de que tambien aprendimos sobre linux y que para el trabajo tuvimos tambien que aprender sobre ciertos comandos muy utiles como scp para cargar los documentos en la instacia virtual que aunque no terminamos usando aprendimos sobre este, fue un desarollo dificil en el cual tuvimos muchos problemas pero a la vez aprendimos de muchas cosas.
