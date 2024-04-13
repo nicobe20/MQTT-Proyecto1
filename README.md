@@ -1,7 +1,7 @@
 #MQTT-Proyecto1
 ##Juan Pablo duque Palencia y Nicolas Betancur Ochoa  
 ###Como ejecutar el proyecto.
-La forma de ejecutar el proyecto es simplemente compilando el archivo Servidor.c de esta manera: ´´´gcc Servidor.c -o Servidor.out´´´ y el Cliente de la misma manera ´´´gcc Cliente.c -o Cliente.out´´´ para correr el servidor debes pasar los siguientes argumentos ´´´./Servidor.out <ip> <port> <Path_log/Log.txt>´´´ y para correr el Cliente ´´´./Cliente.out <Path_log/Log.txt>´´´
+La forma de ejecutar el proyecto es simplemente compilando el archivo Servidor.c de esta manera: ```gcc Servidor.c -o Servidor.out``` y el Cliente de la misma manera ```gcc Cliente.c -o Cliente.out``` para correr el servidor debes pasar los siguientes argumentos ```./Servidor.out <ip> <port> <Path_log/Log.txt>``` y para correr el Cliente ```./Cliente.out <Path_log/Log.txt>```
 
 
 &centerdot;**Introducción.**<br>
