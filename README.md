@@ -30,6 +30,10 @@ El desarrollo del cliente en C también fue complicado inicialmente debido a pro
 En conclusion fue un proyecto muy desafiante que aunque no lo logramos terminar por completo pudimos aprender mucho sobre diferentes aspectos de la programacion en red, aprendimos sobre el protocolo MQTT y como implementarlo y como funciona, aprendimos nuevas cosas sobre C y diferentes forma de programar, aprendimos sobre concurrencia y como implementarla en C, aprendimos sobre sockets y conexiones me parece curioso el hecho de que tambien aprendimos sobre linux y que para el trabajo tuvimos tambien que aprender sobre ciertos comandos muy utiles como scp para cargar los documentos en la instacia virtual que aunque no terminamos usando aprendimos sobre este, fue un desarollo dificil en el cual tuvimos muchos problemas pero a la vez aprendimos de muchas cosas.
 
 &centerdot;**Referencias**<br>
+GITHUB de pruebas y usado para hacer pulls y desarollo mas rapido en la instancia de aws.
+https://github.com/jpduquep/MQTT
+
+**Referencias usadas en el trabajo de investigacion:**
 https://public.dhe.ibm.com/software/dw/webservices/ws-mqtt/mqtt-v3r1.html
 https://beej.us/guide/bgnet/pdf/bgnet_usl_c_1.pdf
 https://www.gta.ufrj.br/ensino/eel878/sockets/sockaddr_inman.html
